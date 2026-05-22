@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "name": "Gestor de Incidencias",
+    "description": "Plataforma interna para el reporte y seguimiento de tickets de soporte técnico.",
+    "tags": ["Angular", "Node.js", "MongoDB"],
+    "status": "Producción"
+  },
+  {
+    "id": 2,
+    "name": "App de Fichajes",
+    "description": "Aplicación para el control horario y registro de jornadas de los empleados.",
+    "tags": ["React Native", "Firebase"],
+    "status": "Mantenimiento"
+  },
+  {
+    "id": 3,
+    "name": "Intranet Corporativa",
+    "description": "Portal centralizado para noticias, documentos y comunicación de la empresa.",
+    "tags": ["Vue", "PHP", "MySQL"],
+    "status": "Producción"
+  },
+  {
+    "id": 4,
+    "name": "Renove de Equipos",
+    "description": "Herramienta para gestionar la sustitución del hardware obsoleto de la plantilla.",
+    "tags": ["HTML/CSS", "JavaScript", "SQL"],
+    "status": "En Desarrollo"
+  },
+  {
+    "id": 5,
+    "name": "Informes Mensuales",
+    "description": "Automatización de reportes financieros y de rendimiento para dirección.",
+    "tags": ["Python", "Pandas", "AWS"],
+    "status": "Producción"
+  },
+  {
+    "id": 6,
+    "name": "Chat Interno Seguro",
+    "description": "Canal de comunicación seguro y en tiempo real para proyectos confidenciales.",
+    "tags": ["Angular", "WebSockets", "Java"],
+    "status": "En Desarrollo"
+  },
+  {
+    "id": 7,
+    "name": "Inventario de Almacén",
+    "description": "Sistema de tracking de stock y logística en tiempo real.",
+    "tags": ["React", "Express", "PostgreSQL"],
+    "status": "Mantenimiento"
+  },
+  {
+    "id": 8,
+    "name": "Dashboard de Ventas",
+    "description": "Panel interactivo con gráficas de rendimiento comercial.",
+    "tags": ["Angular", "Tailwind", "TypeScript"],
+    "status": "Producción"
+  }
+]
