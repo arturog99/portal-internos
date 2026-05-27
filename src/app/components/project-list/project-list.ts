@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { FormsModule } from '@angular/forms';
-import { ProjectService } from '../../services/project';
+import { ProjectService } from '../../services/project.service';
 import { Project } from '../../models/project.model';
 
 @Component({
