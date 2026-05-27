@@ -16,17 +16,34 @@ export class ProjectListComponent implements OnInit {
   
   projects = signal<Project[]>([]);
   searchTerm = signal('');
+  selectedStatus = signal<string>('');
+  selectedTag = signal<string>('');
+
+  // Obtener todos los tags únicos de los proyectos
+  availableTags = computed(() => {
+    const projects = this.projects();
+    const allTags = projects.flatMap(p => p.tags);
+    return Array.from(new Set(allTags)).sort();
+  });
 
   filteredProjects = computed(() => {
     const projects = this.projects();
     const term = this.searchTerm();
+    const status = this.selectedStatus();
+    const tag = this.selectedTag();
     
-    if (!term) {
-      return projects;
-    }
-    return projects.filter(proyecto =>
-      proyecto.name.toLowerCase().includes(term.toLowerCase())
-    );
+    return projects.filter(proyecto => {
+      // Filtro por nombre
+      const matchesName = !term || proyecto.name.toLowerCase().includes(term.toLowerCase());
+      
+      // Filtro por estado
+      const matchesStatus = !status || proyecto.status === status;
+      
+      // Filtro por tecnología
+      const matchesTag = !tag || proyecto.tags.includes(tag);
+      
+      return matchesName && matchesStatus && matchesTag;
+    });
   });
 
   ngOnInit() {

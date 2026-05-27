@@ -1,10 +1,36 @@
-<div class="mb-8">
+<div class="mb-8 space-y-4">
+  <!-- Buscador por nombre -->
   <input 
     type="text" 
     [(ngModel)]="searchTerm" 
     placeholder="Buscar proyecto por nombre..." 
     class="w-full md:w-1/2 px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition"
   >
+  
+  <!-- Filtros avanzados -->
+  <div class="flex flex-wrap gap-4">
+    <!-- Filtro por estado -->
+    <select 
+      [(ngModel)]="selectedStatus" 
+      class="px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
+    >
+      <option value="">Todos los estados</option>
+      <option value="Producción">Producción</option>
+      <option value="En Desarrollo">En Desarrollo</option>
+      <option value="Mantenimiento">Mantenimiento</option>
+    </select>
+    
+    <!-- Filtro por tecnología -->
+    <select 
+      [(ngModel)]="selectedTag" 
+      class="px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
+    >
+      <option value="">Todas las tecnologías</option>
+      @for (tag of availableTags(); track tag) {
+        <option [value]="tag">{{ tag }}</option>
+      }
+    </select>
+  </div>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
