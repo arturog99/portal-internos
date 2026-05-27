@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { FormsModule } from '@angular/forms';
 import { ProjectService } from '../../services/project';
@@ -14,21 +14,30 @@ import { Project } from '../../models/project.model';
 export class ProjectListComponent implements OnInit {
   private projectService = inject(ProjectService);
   
-  projects: Project[] = [];
-  searchTerm: string = '';
+  projects = signal<Project[]>([]);
+  searchTerm = signal('');
+
+  filteredProjects = computed(() => {
+    const projects = this.projects();
+    const term = this.searchTerm();
+    
+    if (!term) {
+      return projects;
+    }
+    return projects.filter(proyecto =>
+      proyecto.name.toLowerCase().includes(term.toLowerCase())
+    );
+  });
 
   ngOnInit() {
-    this.projectService.getProjects().subscribe(datos => {
-      this.projects = datos; 
+    this.projectService.getProjects().subscribe({
+      next: (datos) => {
+        console.log('Datos recibidos:', datos);
+        this.projects.set(datos);
+      },
+      error: (err) => {
+        console.error('Error cargando proyectos:', err);
+      }
     });
-  }
-
-  get filteredProjects(): Project[] {
-    if (!this.searchTerm) {
-      return this.projects;
-    }
-    return this.projects.filter(proyecto =>
-      proyecto.name.toLowerCase().includes(this.searchTerm.toLowerCase())
-    );
   }
 }
