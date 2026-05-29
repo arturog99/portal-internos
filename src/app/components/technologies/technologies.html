@@ -1,19 +1,19 @@
 <div class="max-w-7xl mx-auto">
   <div class="text-center mb-12">
-    <h1 class="text-5xl font-extrabold text-white mb-4">
+    <h1 class="text-5xl font-extrabold mb-4" style="color: #1C211F;">
       Tecnologías
     </h1>
-    <p class="text-slate-300 text-lg">Todas las tecnologías utilizadas en nuestros proyectos</p>
+    <p class="text-lg" style="color: #1C211F; opacity: 0.7;">Todas las tecnologías utilizadas en nuestros proyectos</p>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     @for (tech of technologies(); track tech.name) {
-      <div class="group bg-white rounded-xl p-6 border border-slate-200 hover:border-orange-400 hover:shadow-xl transition-all duration-300">
+      <div class="group bg-white rounded-xl p-6 border border-gray-200 hover:shadow-xl transition-all duration-300">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-2xl font-bold text-slate-900 group-hover:text-red-600 transition-colors duration-300">{{ tech.name }}</h3>
-          <span class="text-3xl font-bold text-orange-500">{{ tech.count }}</span>
+          <h3 class="text-2xl font-bold transition-colors duration-300" style="color: #1C211F;">{{ tech.name }}</h3>
+          <span class="text-3xl font-bold" style="color: #4A7C59;">{{ tech.count }}</span>
         </div>
-        <p class="text-slate-600 text-sm">Proyectos que utilizan esta tecnología</p>
+        <p class="text-sm" style="color: #1C211F; opacity: 0.7;">Proyectos que utilizan esta tecnología</p>
       </div>
     }
   </div>
