@@ -6,28 +6,31 @@
 </div>
 
 <div class="mb-10 space-y-6">
-  <!-- Buscador por nombre -->
-  <div class="relative">
-    <input
-      type="text"
-      [(ngModel)]="searchTerm"
-      placeholder="Buscar proyecto por nombre..."
-      class="w-full px-6 py-4 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:border-transparent shadow-sm transition-all duration-300"
-      style="color: #1C211F; focus:ring-color: #4A7C59;"
-    >
-    <div class="absolute right-4 top-1/2 transform -translate-y-1/2" style="color: #4A7C59;">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-      </svg>
+  <!-- Grupo: Búsqueda -->
+  <div class="filter-group">
+    <h3 class="filter-group-title">Búsqueda</h3>
+    <div class="relative">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="Buscar proyecto por nombre..."
+        class="w-full px-6 py-4 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:border-transparent shadow-sm transition-all duration-300"
+        style="color: #1C211F; focus:ring-color: #4A7C59;"
+      >
+      <div class="absolute right-4 top-1/2 transform -translate-y-1/2" style="color: #4A7C59;">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
     </div>
   </div>
 
-  <!-- Filtros avanzados -->
-  <div class="flex flex-wrap gap-4">
-    <!-- Filtro por estado -->
+  <!-- Grupo: Estado del Proyecto -->
+  <div class="filter-group">
+    <h3 class="filter-group-title">Estado del Proyecto</h3>
     <select
       [(ngModel)]="selectedStatus"
-      class="px-6 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:border-transparent shadow-sm transition-all duration-300 cursor-pointer"
+      class="w-full px-6 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:border-transparent shadow-sm transition-all duration-300 cursor-pointer"
       style="color: #1C211F; focus:ring-color: #4A7C59;"
     >
       <option value="">Todos los estados</option>
@@ -35,11 +38,14 @@
       <option value="En Desarrollo">En Desarrollo</option>
       <option value="Mantenimiento">Mantenimiento</option>
     </select>
+  </div>
 
-    <!-- Filtro por tecnología -->
+  <!-- Grupo: Tecnologías -->
+  <div class="filter-group">
+    <h3 class="filter-group-title">Tecnologías</h3>
     <select
       [(ngModel)]="selectedTag"
-      class="px-6 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:border-transparent shadow-sm transition-all duration-300 cursor-pointer"
+      class="w-full px-6 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:border-transparent shadow-sm transition-all duration-300 cursor-pointer"
       style="color: #1C211F; focus:ring-color: #4A7C59;"
     >
       <option value="">Todas las tecnologías</option>
