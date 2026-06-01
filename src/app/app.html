@@ -1,11 +1,19 @@
 <app-navbar></app-navbar>
 
-<div class="min-h-screen bg-gray-100 p-8">
-  <div class="max-w-6xl mx-auto">
+<div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8 relative overflow-hidden">
+  <!-- Efecto de fondo con círculos decorativos -->
+  <div class="absolute top-20 left-10 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl"></div>
+  <div class="absolute bottom-20 right-10 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl"></div>
+  <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl"></div>
 
-    <h1 class="text-3xl font-extrabold text-red-900 mb-8">Catálogo de Proyectos</h1>
+  <div class="max-w-7xl mx-auto relative z-10">
+    <div class="text-center mb-12">
+      <h1 class="text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-300 mb-4">
+        Catálogo de Proyectos
+      </h1>
+      <p class="text-purple-200/70 text-lg">Explora los proyectos y tecnologías de nuestra empresa</p>
+    </div>
 
     <app-project-list></app-project-list>
-
   </div>
 </div>
