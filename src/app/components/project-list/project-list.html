@@ -1,29 +1,46 @@
-<div class="mb-8 space-y-4">
+<div class="text-center mb-12">
+  <h1 class="text-5xl font-extrabold mb-4" style="color: #1C211F;">
+    Catálogo de Proyectos
+  </h1>
+  <p class="text-lg" style="color: #1C211F; opacity: 0.7;">Explora los proyectos y tecnologías de nuestra empresa</p>
+</div>
+
+<div class="mb-10 space-y-6">
   <!-- Buscador por nombre -->
-  <input 
-    type="text" 
-    [(ngModel)]="searchTerm" 
-    placeholder="Buscar proyecto por nombre..." 
-    class="w-full md:w-1/2 px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition"
-  >
-  
+  <div class="relative">
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      placeholder="Buscar proyecto por nombre..."
+      class="w-full px-6 py-4 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:border-transparent shadow-sm transition-all duration-300"
+      style="color: #1C211F; focus:ring-color: #4A7C59;"
+    >
+    <div class="absolute right-4 top-1/2 transform -translate-y-1/2" style="color: #4A7C59;">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+    </div>
+  </div>
+
   <!-- Filtros avanzados -->
   <div class="flex flex-wrap gap-4">
     <!-- Filtro por estado -->
-    <select 
-      [(ngModel)]="selectedStatus" 
-      class="px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
+    <select
+      [(ngModel)]="selectedStatus"
+      class="px-6 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:border-transparent shadow-sm transition-all duration-300 cursor-pointer"
+      style="color: #1C211F; focus:ring-color: #4A7C59;"
     >
       <option value="">Todos los estados</option>
       <option value="Producción">Producción</option>
       <option value="En Desarrollo">En Desarrollo</option>
       <option value="Mantenimiento">Mantenimiento</option>
     </select>
-    
+
     <!-- Filtro por tecnología -->
-    <select 
-      [(ngModel)]="selectedTag" 
-      class="px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm bg-white"
+    <select
+      [(ngModel)]="selectedTag"
+      class="px-6 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:border-transparent shadow-sm transition-all duration-300 cursor-pointer"
+      style="color: #1C211F; focus:ring-color: #4A7C59;"
     >
       <option value="">Todas las tecnologías</option>
       @for (tag of availableTags(); track tag) {
@@ -34,21 +51,21 @@
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-  
+
   @for (proyecto of filteredProjects(); track proyecto.id) {
-    
-    <div class="bg-white p-5 rounded-xl shadow-md border border-slate-200 hover:shadow-lg transition">
-      <h3 class="text-xl font-bold text-slate-800">{{ proyecto.name }}</h3>
-      <p class="text-slate-600 mt-2 text-sm">{{ proyecto.description }}</p>
-      
-      <div class="mt-3 flex flex-wrap gap-2">
+
+    <div class="group bg-white rounded-xl p-6 border border-gray-200 hover:shadow-xl transition-all duration-300">
+      <h3 class="text-xl font-bold mb-3 transition-colors duration-300" style="color: #1C211F;">{{ proyecto.name }}</h3>
+      <p class="mt-2 text-sm leading-relaxed" style="color: #1C211F; opacity: 0.7;">{{ proyecto.description }}</p>
+
+      <div class="mt-4 flex flex-wrap gap-2">
         @for (tag of proyecto.tags; track tag) {
-          <span class="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded-md">{{ tag }}</span>
+          <span class="text-xs px-3 py-1.5 rounded-full border transition-colors duration-300 hover:bg-[#4A7C59] hover:text-white hover:border-[#4A7C59]" style="background-color: #F9F9F6; color: #1C211F; border-color: #E5E5E5;">{{ tag }}</span>
         }
       </div>
-      
-      <div class="mt-4">
-        <span class="text-xs font-semibold px-2 py-1 rounded-md"
+
+      <div class="mt-5">
+        <span class="text-xs font-semibold px-4 py-2 rounded-full"
               [ngClass]="{
                 'bg-green-100 text-green-800': proyecto.status === 'Producción',
                 'bg-yellow-100 text-yellow-800': proyecto.status === 'En Desarrollo',
@@ -58,11 +75,16 @@
         </span>
       </div>
     </div>
-    
+
   } @empty {
-    <div class="col-span-full text-center py-10 text-slate-500">
-      No se han encontrado proyectos.
+    <div class="col-span-full text-center py-16">
+      <div class="bg-white rounded-xl p-12 border border-gray-200">
+        <svg class="w-16 h-16 mx-auto mb-4" style="color: #4A7C59; opacity: 0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p class="text-lg" style="color: #1C211F; opacity: 0.5;">No se han encontrado proyectos.</p>
+      </div>
     </div>
   }
-  
+
 </div>
