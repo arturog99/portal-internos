@@ -1,0 +1,24 @@
+# IDEs and editors
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Backend (Spring Boot) build output
+portal-backend/target/
+portal-backend/.gradle/
+portal-backend/build/
+
+# Backend secrets
+portal-backend/src/main/resources/application-local.yml
+portal-backend/.env
+
+# Logs
+*.log
