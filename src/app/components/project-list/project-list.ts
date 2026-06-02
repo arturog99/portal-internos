@@ -26,6 +26,12 @@ export class ProjectListComponent implements OnInit {
   selectedDatabaseTag = signal<string>('');  // Tecnología base de datos seleccionada
   selectedCloudTag = signal<string>('');     // Tecnología cloud/infraestructura seleccionada
 
+  filtersExpanded = signal(false);           // Controla si el panel de filtros está desplegado
+  selectedProject = signal<Project | null>(null);  // Proyecto seleccionado para ver detalles
+
+  // Estados posibles de un proyecto (para el selector del modal)
+  statuses: Project['status'][] = ['Producción', 'En Desarrollo', 'Mantenimiento'];
+
   // Categorías de tecnologías
   frontendTechs = ['Angular', 'React', 'Vue', 'React Native', 'HTML/CSS', 'JavaScript', 'TypeScript', 'Tailwind'];
   backendTechs = ['Node.js', 'PHP', 'Python', 'Java', 'Express'];
@@ -85,6 +91,48 @@ export class ProjectListComponent implements OnInit {
       return matchesName && matchesStatus && matchesAnyTech;
     });
   });
+
+  // Alterna la visibilidad del panel de filtros
+  toggleFilters() {
+    this.filtersExpanded.update(value => !value);
+  }
+
+  // Indica si hay algún filtro activo
+  hasActiveFilters = computed(() =>
+    !!this.searchTerm() || !!this.selectedStatus() || !!this.selectedFrontendTag() ||
+    !!this.selectedBackendTag() || !!this.selectedDatabaseTag() || !!this.selectedCloudTag()
+  );
+
+  // Limpia todos los filtros
+  clearFilters() {
+    this.searchTerm.set('');
+    this.selectedStatus.set('');
+    this.selectedFrontendTag.set('');
+    this.selectedBackendTag.set('');
+    this.selectedDatabaseTag.set('');
+    this.selectedCloudTag.set('');
+  }
+
+  // Abre el modal de detalles con el proyecto seleccionado
+  openProject(proyecto: Project) {
+    this.selectedProject.set(proyecto);
+  }
+
+  // Cierra el modal de detalles
+  closeProject() {
+    this.selectedProject.set(null);
+  }
+
+  // Actualiza el estado del proyecto seleccionado (en memoria)
+  updateStatus(status: Project['status']) {
+    const selected = this.selectedProject();
+    if (!selected) return;
+
+    this.projects.update(projects =>
+      projects.map(p => p.id === selected.id ? { ...p, status } : p)
+    );
+    this.selectedProject.set({ ...selected, status });
+  }
 
   // Al inicializar el componente, cargar los proyectos desde el servicio
   ngOnInit() {
