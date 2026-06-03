@@ -89,6 +89,27 @@ export class LoginComponent {
     });
   }
 
+  /** Login mediante certificado digital (X.509 / mTLS). */
+  loginWithCertificate(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.auth.certLogin().subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.router.navigate(['/proyectos']);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        if (err.status === 401) {
+          this.error.set('No se detectó un certificado válido. Asegúrate de seleccionarlo en el navegador.');
+        } else {
+          this.error.set('No se pudo conectar con el servidor de certificados (HTTPS 8443). Revisa que el backend esté en modo certificado y que confías en la CA.');
+        }
+      },
+    });
+  }
+
   /** Vuelve al paso de credenciales. */
   cancelTwoFactor(): void {
     this.twoFactorRequired.set(false);

@@ -8,7 +8,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { API_BASE_URL } from '../core/api.config';
+import { API_BASE_URL, CERT_API_BASE_URL } from '../core/api.config';
 import {
   AuthResponse,
   AuthUser,
@@ -25,6 +25,7 @@ const USER_KEY = 'portal_user';
 export class AuthService {
   private http = inject(HttpClient);
   private base = `${API_BASE_URL}/auth`;
+  private certBase = `${CERT_API_BASE_URL}/auth`;
 
   /** Usuario autenticado actual (null si no hay sesión). */
   currentUser = signal<AuthUser | null>(this.loadUser());
@@ -67,6 +68,25 @@ export class AuthService {
   verifyTwoFactor(tempToken: string, code: string): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.base}/verify-2fa`, { tempToken, code })
+      .pipe(
+        tap((res) => {
+          if (res.token) {
+            this.storeSession(res.token, { username: res.username, role: res.role });
+          }
+        })
+      );
+  }
+
+  /**
+   * Login mediante certificado digital (X.509 / mTLS).
+   *
+   * Llama al endpoint HTTPS protegido por TLS mutuo; el navegador presentará el
+   * certificado durante el handshake. Si es válido, el backend devuelve el JWT y
+   * se guarda la sesión como en el login normal.
+   */
+  certLogin(): Observable<AuthResponse> {
+    return this.http
+      .get<AuthResponse>(`${this.certBase}/cert-login`, { withCredentials: true })
       .pipe(
         tap((res) => {
           if (res.token) {

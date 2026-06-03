@@ -110,6 +110,25 @@ public class AuthService {
     }
 
     /**
+     * Login mediante certificado digital (X.509 / mTLS).
+     * 
+     * Se invoca cuando el usuario ya ha sido autenticado por su certificado en el
+     * handshake TLS (el filtro X.509 ha resuelto el principal contra el campo
+     * certificateId). Genera y devuelve el token de acceso JWT, igual que un login
+     * normal, para que el frontend pueda seguir operando con JWT.
+     *
+     * @param username Nombre de usuario resuelto a partir del certificado
+     * @return Respuesta de autenticación con el token de acceso
+     * @throws UsernameNotFoundException Si el usuario no existe
+     */
+    public AuthResponse certLogin(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+        String token = jwtService.generateAccessToken(user.getUsername(), user.getRole().name());
+        return AuthResponse.authenticated(token, user.getUsername(), user.getRole().name());
+    }
+
+    /**
      * Genera un nuevo secreto TOTP para el usuario y prepara la configuración 2FA.
      * 
      * Este método:
