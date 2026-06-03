@@ -5,7 +5,11 @@ import com.empresa.portal_backend.dto.LoginRequest;
 import com.empresa.portal_backend.dto.TwoFactorVerifyRequest;
 import com.empresa.portal_backend.service.AuthService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,5 +66,26 @@ public class AuthController {
     @PostMapping("/verify-2fa")
     public ResponseEntity<AuthResponse> verifyTwoFactor(@Valid @RequestBody TwoFactorVerifyRequest request) {
         return ResponseEntity.ok(authService.verifyTwoFactor(request));
+    }
+
+    /**
+     * Endpoint de login mediante certificado digital (X.509 / mTLS).
+     * 
+     * Solo es accesible por HTTPS con el perfil "cert" activo. Si el cliente ha
+     * presentado un certificado válido, el filtro X.509 ya habrá autenticado al
+     * usuario; este endpoint emite entonces el token JWT de acceso. Si no se ha
+     * presentado certificado, la autenticación es anónima y se devuelve 401.
+     *
+     * @param authentication Contexto de autenticación de Spring Security
+     * @return Respuesta de autenticación con el token JWT, o 401 si no hay certificado
+     */
+    @GetMapping("/cert-login")
+    public ResponseEntity<AuthResponse> certLogin(Authentication authentication) {
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || authentication instanceof AnonymousAuthenticationToken) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(authService.certLogin(authentication.getName()));
     }
 }

@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProjectService } from '../../services/project.service';
 import { Project } from '../../models/project.model';
+import { ProjectRequest } from '../../models/project.request';
+import { AuthService } from '../../services/auth.service';
 
 // Componente de lista de proyectos con filtrado
 @Component({
@@ -16,6 +18,8 @@ import { Project } from '../../models/project.model';
 export class ProjectListComponent implements OnInit {
   // Inyección del servicio de proyectos
   private projectService = inject(ProjectService);
+  // Servicio de autenticación expuesto a la plantilla para permisos por rol
+  protected auth = inject(AuthService);
   
   // Signals para el estado reactivo de la aplicación
   projects = signal<Project[]>([]);          // Lista de proyectos
@@ -28,6 +32,16 @@ export class ProjectListComponent implements OnInit {
 
   filtersExpanded = signal(false);           // Controla si el panel de filtros está desplegado
   selectedProject = signal<Project | null>(null);  // Proyecto seleccionado para ver detalles
+
+  // Estado del formulario de creación/edición de proyectos
+  showForm = signal(false);                  // Controla la visibilidad del modal de formulario
+  editingId = signal<number | null>(null);   // ID del proyecto en edición (null = creación)
+  formName = signal('');                     // Campo nombre del formulario
+  formDescription = signal('');              // Campo descripción del formulario
+  formTags = signal('');                     // Tecnologías separadas por comas
+  formStatus = signal<Project['status']>('Producción'); // Estado del formulario
+  saving = signal(false);                    // Indica si hay una operación en curso
+  errorMessage = signal<string | null>(null); // Mensaje de error a mostrar
 
   // Estados posibles de un proyecto (para el selector del modal)
   statuses: Project['status'][] = ['Producción', 'En Desarrollo', 'Mantenimiento'];
@@ -123,15 +137,100 @@ export class ProjectListComponent implements OnInit {
     this.selectedProject.set(null);
   }
 
-  // Actualiza el estado del proyecto seleccionado (en memoria)
+  // Actualiza el estado del proyecto seleccionado (persiste en el backend)
   updateStatus(status: Project['status']) {
     const selected = this.selectedProject();
-    if (!selected) return;
+    if (!selected || !this.auth.canEdit()) return;
 
-    this.projects.update(projects =>
-      projects.map(p => p.id === selected.id ? { ...p, status } : p)
-    );
-    this.selectedProject.set({ ...selected, status });
+    this.projectService.updateStatus(selected.id, status).subscribe({
+      next: (updated) => {
+        this.projects.update(projects =>
+          projects.map(p => p.id === updated.id ? updated : p)
+        );
+        this.selectedProject.set(updated);
+      },
+      error: () => this.errorMessage.set('No se pudo actualizar el estado.')
+    });
+  }
+
+  // Abre el formulario para crear un proyecto nuevo (solo ADMIN)
+  openCreate() {
+    this.editingId.set(null);
+    this.formName.set('');
+    this.formDescription.set('');
+    this.formTags.set('');
+    this.formStatus.set('Producción');
+    this.errorMessage.set(null);
+    this.showForm.set(true);
+  }
+
+  // Abre el formulario para editar un proyecto existente (ADMIN o TECNICO)
+  openEdit(proyecto: Project) {
+    this.editingId.set(proyecto.id);
+    this.formName.set(proyecto.name);
+    this.formDescription.set(proyecto.description);
+    this.formTags.set(proyecto.tags.join(', '));
+    this.formStatus.set(proyecto.status);
+    this.errorMessage.set(null);
+    this.showForm.set(true);
+  }
+
+  // Cierra el formulario
+  closeForm() {
+    this.showForm.set(false);
+  }
+
+  // Crea o actualiza el proyecto según el modo activo
+  saveProject() {
+    if (!this.formName().trim()) {
+      this.errorMessage.set('El nombre es obligatorio.');
+      return;
+    }
+    const request: ProjectRequest = {
+      name: this.formName().trim(),
+      description: this.formDescription().trim(),
+      tags: this.formTags().split(',').map(t => t.trim()).filter(t => t.length > 0),
+      status: this.formStatus()
+    };
+
+    this.saving.set(true);
+    this.errorMessage.set(null);
+    const id = this.editingId();
+    const request$ = id
+      ? this.projectService.update(id, request)
+      : this.projectService.create(request);
+
+    request$.subscribe({
+      next: (saved) => {
+        this.saving.set(false);
+        this.showForm.set(false);
+        if (id) {
+          this.projects.update(projects => projects.map(p => p.id === saved.id ? saved : p));
+        } else {
+          this.projects.update(projects => [...projects, saved]);
+        }
+      },
+      error: () => {
+        this.saving.set(false);
+        this.errorMessage.set('No se pudo guardar el proyecto.');
+      }
+    });
+  }
+
+  // Elimina un proyecto tras confirmación (solo ADMIN)
+  deleteProject(proyecto: Project) {
+    if (!this.auth.canManage()) return;
+    if (!confirm(`¿Eliminar el proyecto "${proyecto.name}"?`)) return;
+
+    this.projectService.delete(proyecto.id).subscribe({
+      next: () => {
+        this.projects.update(projects => projects.filter(p => p.id !== proyecto.id));
+        if (this.selectedProject()?.id === proyecto.id) {
+          this.selectedProject.set(null);
+        }
+      },
+      error: () => this.errorMessage.set('No se pudo eliminar el proyecto.')
+    });
   }
 
   // Al inicializar el componente, cargar los proyectos desde el servicio

@@ -1,0 +1,7 @@
+:host {
+  display: block;
+}
+
+input:focus {
+  --tw-ring-color: #4A7C59;
+}
