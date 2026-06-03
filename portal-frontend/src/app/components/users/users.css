@@ -1,0 +1,44 @@
+:host {
+  display: block;
+}
+
+input:focus,
+select:focus {
+  --tw-ring-color: #4A7C59;
+}
+
+/* Modal crear/editar usuario */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(28, 33, 31, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 50;
+  animation: overlay-in 0.2s ease;
+}
+
+.modal-content {
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 28px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(28, 33, 31, 0.25);
+  animation: modal-in 0.25s ease;
+}
+
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}

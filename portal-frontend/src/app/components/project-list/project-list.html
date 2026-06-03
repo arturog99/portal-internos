@@ -23,6 +23,18 @@
       </div>
     </div>
 
+    @if (auth.canManage()) {
+      <button
+        type="button"
+        (click)="openCreate()"
+        class="flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-white shadow-sm transition-all duration-300 font-medium"
+        style="background-color: #2C4C3B;"
+      >
+        <span class="text-lg leading-none">+</span>
+        <span>Nuevo proyecto</span>
+      </button>
+    }
+
     <button
       type="button"
       (click)="toggleFilters()"
@@ -198,28 +210,102 @@
         </div>
       </div>
 
-      <!-- Editar estado -->
-      <div>
-        <h3 class="filter-group-title mb-3">Estado del proyecto</h3>
-        <div class="flex flex-wrap gap-2">
-          @for (status of statuses; track status) {
-            <button
-              type="button"
-              (click)="updateStatus(status)"
-              class="text-xs font-semibold px-4 py-2 rounded-full border transition-all duration-200"
-              [ngClass]="{
-                'bg-green-100 text-green-800 border-green-300': status === 'Producción' && proyecto.status === status,
-                'bg-yellow-100 text-yellow-800 border-yellow-300': status === 'En Desarrollo' && proyecto.status === status,
-                'bg-gray-200 text-gray-800 border-gray-400': status === 'Mantenimiento' && proyecto.status === status,
-                'bg-white border-gray-300': proyecto.status !== status
-              }"
-              [style.color]="proyecto.status !== status ? '#1C211F' : ''"
-            >
-              {{ status }}
+      <!-- Editar estado (solo ADMIN y TECNICO) -->
+      @if (auth.canEdit()) {
+        <div>
+          <h3 class="filter-group-title mb-3">Estado del proyecto</h3>
+          <div class="flex flex-wrap gap-2">
+            @for (status of statuses; track status) {
+              <button
+                type="button"
+                (click)="updateStatus(status)"
+                class="text-xs font-semibold px-4 py-2 rounded-full border transition-all duration-200"
+                [ngClass]="{
+                  'bg-green-100 text-green-800 border-green-300': status === 'Producción' && proyecto.status === status,
+                  'bg-yellow-100 text-yellow-800 border-yellow-300': status === 'En Desarrollo' && proyecto.status === status,
+                  'bg-gray-200 text-gray-800 border-gray-400': status === 'Mantenimiento' && proyecto.status === status,
+                  'bg-white border-gray-300': proyecto.status !== status
+                }"
+                [style.color]="proyecto.status !== status ? '#1C211F' : ''"
+              >
+                {{ status }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Acciones de edición/borrado según rol -->
+      @if (auth.canEdit()) {
+        <div class="flex gap-2 mt-6 pt-5 border-t border-gray-100">
+          <button type="button" (click)="openEdit(proyecto)"
+                  class="px-4 py-2 rounded-lg text-white text-sm font-semibold transition" style="background-color: #2C4C3B;">
+            Editar proyecto
+          </button>
+          @if (auth.canManage()) {
+            <button type="button" (click)="deleteProject(proyecto)"
+                    class="px-4 py-2 rounded-lg text-sm font-semibold border border-red-300 text-red-600 transition">
+              Eliminar
             </button>
           }
         </div>
-      </div>
+      }
+    </div>
+  </div>
+}
+
+<!-- Modal de creación / edición de proyecto -->
+@if (showForm()) {
+  <div class="modal-overlay" (click)="closeForm()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h2 class="text-2xl font-bold mb-5" style="color: #1C211F;">
+        {{ editingId() ? 'Editar proyecto' : 'Nuevo proyecto' }}
+      </h2>
+
+      @if (errorMessage()) {
+        <div class="mb-4 px-4 py-3 rounded-lg text-sm bg-red-50 text-red-700 border border-red-200">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <form (ngSubmit)="saveProject()" class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold mb-1" style="color: #1C211F;">Nombre</label>
+          <input type="text" name="name" [ngModel]="formName()" (ngModelChange)="formName.set($event)"
+                 class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2" style="color: #1C211F;">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1" style="color: #1C211F;">Descripción</label>
+          <textarea name="description" rows="3" [ngModel]="formDescription()" (ngModelChange)="formDescription.set($event)"
+                    class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2" style="color: #1C211F;"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1" style="color: #1C211F;">Tecnologías (separadas por comas)</label>
+          <input type="text" name="tags" [ngModel]="formTags()" (ngModelChange)="formTags.set($event)"
+                 placeholder="Angular, Node.js, MySQL"
+                 class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2" style="color: #1C211F;">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1" style="color: #1C211F;">Estado</label>
+          <select name="status" [ngModel]="formStatus()" (ngModelChange)="formStatus.set($event)"
+                  class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 cursor-pointer" style="color: #1C211F;">
+            @for (status of statuses; track status) {
+              <option [value]="status">{{ status }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button type="submit" [disabled]="saving()"
+                  class="flex-1 py-2.5 rounded-lg text-white font-semibold transition disabled:opacity-60" style="background-color: #2C4C3B;">
+            {{ saving() ? 'Guardando...' : 'Guardar' }}
+          </button>
+          <button type="button" (click)="closeForm()"
+                  class="px-5 py-2.5 rounded-lg font-medium border border-gray-300" style="color: #1C211F;">
+            Cancelar
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 }
