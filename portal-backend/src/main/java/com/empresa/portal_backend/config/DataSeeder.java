@@ -15,8 +15,17 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-// Carga datos iniciales al arrancar: 3 usuarios (uno por rol) y los proyectos de ejemplo.
-// Solo se ejecuta si las tablas estan vacias, por lo que es seguro reiniciar.
+/**
+ * Componente que carga datos iniciales en la base de datos al arrancar la aplicación.
+ * 
+ * Este seeder crea:
+ * - 3 usuarios de ejemplo (uno por cada rol: admin, tecnico, visitante)
+ * - 8 proyectos de ejemplo con diferentes estados y tecnologías
+ * 
+ * Solo se ejecuta si las tablas están vacías, por lo que es seguro reiniciar la aplicación
+ * sin perder datos existentes. Se puede desactivar mediante la propiedad
+ * app.seed.enabled=false.
+ */
 @Component
 @ConditionalOnProperty(name = "app.seed.enabled", havingValue = "true", matchIfMissing = true)
 public class DataSeeder implements CommandLineRunner {
@@ -27,6 +36,13 @@ public class DataSeeder implements CommandLineRunner {
     private final ProjectRepository projectRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Constructor del seeder de datos.
+     *
+     * @param userRepository Repositorio de usuarios
+     * @param projectRepository Repositorio de proyectos
+     * @param passwordEncoder Codificador de contraseñas
+     */
     public DataSeeder(UserRepository userRepository,
                       ProjectRepository projectRepository,
                       PasswordEncoder passwordEncoder) {
@@ -35,12 +51,27 @@ public class DataSeeder implements CommandLineRunner {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Ejecuta el proceso de carga de datos iniciales.
+     * 
+     * <p>Este método se llama automáticamente al arrancar la aplicación.
+     *
+     * @param args Argumentos de línea de comandos (no utilizados)
+     */
     @Override
     public void run(String... args) {
         seedUsers();
         seedProjects();
     }
 
+    /**
+     * Crea los usuarios de ejemplo si no existen en la base de datos.
+     * 
+     * Crea 3 usuarios con las siguientes credenciales:
+     * - admin / admin123 (Rol: ADMIN)
+     * - tecnico / tecnico123 (Rol: TECNICO)
+     * - visitante / visitante123 (Rol: VISITANTE)
+     */
     private void seedUsers() {
         if (userRepository.count() > 0) {
             return;
@@ -75,6 +106,12 @@ public class DataSeeder implements CommandLineRunner {
                 .build());
     }
 
+    /**
+     * Carga los proyectos de ejemplo si no existen en la base de datos.
+     * 
+     * Crea 8 proyectos con diferentes tecnologías y estados para demostrar
+     * las funcionalidades del sistema.
+     */
     private void seedProjects() {
         if (projectRepository.count() > 0) {
             return;
@@ -119,6 +156,9 @@ public class DataSeeder implements CommandLineRunner {
         log.info("Seed: {} proyectos cargados", seeds.size());
     }
 
+    /**
+     * Record auxiliar para definir los datos de un proyecto de ejemplo.
+     */
     private record SeedProject(String name, String description, List<String> tags, String status) {
     }
 }

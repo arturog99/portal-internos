@@ -22,6 +22,21 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Configuración principal de seguridad de la aplicación.
+ * 
+ * Esta clase configura:
+ * - Autenticación JWT mediante filtros personalizados
+ * - Autenticación con certificado digital X.509 (opcional)
+ * - Control de acceso basado en roles (RBAC)
+ * - Configuración CORS para permitir peticiones desde el frontend
+ * - Gestión de sesiones sin estado (stateless)
+ * 
+ * Roles disponibles:
+ * - ADMIN: Acceso completo a todos los endpoints
+ * - TECNICO: Acceso de lectura/escritura a proyectos
+ * - VISITANTE: Solo lectura de proyectos
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -36,17 +51,40 @@ public class SecurityConfig {
     @Value("${app.certificate.enabled:false}")
     private boolean certificateEnabled;
 
-    // Regex para extraer el identificador del subject del certificado.
-    // Por defecto el CN; para certificados FNMT con el DNI en SERIALNUMBER se puede usar
-    // "SERIALNUMBER=([^,]+)".
+    /**
+     * Regex para extraer el identificador del subject del certificado X.509.
+     * Por defecto extrae el Common Name (CN).
+     * Para certificados FNMT con el DNI en SERIALNUMBER usar: "SERIALNUMBER=([^,]+)"
+     */
     @Value("${app.certificate.subject-regex:CN=(.*?)(?:,|$)}")
     private String certificateSubjectRegex;
 
+    /**
+     * Constructor de la configuración de seguridad.
+     *
+     * @param jwtAuthenticationFilter Filtro para validar tokens JWT en cada petición
+     * @param userRepository Repositorio para buscar usuarios en autenticación por certificado
+     */
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, UserRepository userRepository) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userRepository = userRepository;
     }
 
+    /**
+     * Configura la cadena de filtros de seguridad de la aplicación.
+     * 
+     * Define las reglas de acceso a los endpoints según el rol del usuario:
+     * - Endpoints públicos: /api/auth/**, /error
+     * - GET /api/projects/**: ADMIN, TECNICO, VISITANTE
+     * - POST /api/projects: ADMIN
+     * - DELETE /api/projects/**: ADMIN
+     * - PUT/PATCH /api/projects/**: ADMIN, TECNICO
+     * - /api/users/**: ADMIN
+     * 
+     * @param http Configuración HTTP de Spring Security
+     * @return Cadena de filtros de seguridad configurada
+     * @throws Exception Si hay error en la configuración
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -54,7 +92,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints publicos de autenticacion
+                        // Endpoints públicos de autenticación
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         // Lectura de proyectos: cualquier rol autenticado
@@ -66,12 +104,12 @@ public class SecurityConfig {
                         // Editar proyectos / estado: ADMIN y TECNICO
                         .requestMatchers(HttpMethod.PUT, "/api/projects/**").hasAnyRole("ADMIN", "TECNICO")
                         .requestMatchers(HttpMethod.PATCH, "/api/projects/**").hasAnyRole("ADMIN", "TECNICO")
-                        // Gestion de usuarios: solo ADMIN
+                        // Gestión de usuarios: solo ADMIN
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        // Autenticacion con certificado digital (X.509 / FNMT), activable por configuracion.
+        // Autenticación con certificado digital (X.509 / FNMT), activable por configuración
         if (certificateEnabled) {
             http.x509(x509 -> x509
                     .subjectPrincipalRegex(certificateSubjectRegex)
@@ -81,6 +119,17 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Configura las políticas CORS para permitir peticiones desde el frontend.
+     * 
+     * Permite:
+     * - Orígenes configurados en application.properties
+     * - Métodos HTTP: GET, POST, PUT, PATCH, DELETE, OPTIONS
+     * - Todos los headers
+     * - Credenciales (cookies, authorization headers)
+     * 
+     * @return Configuración CORS para la aplicación
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -94,11 +143,23 @@ public class SecurityConfig {
         return source;
     }
 
+    /**
+     * Proporciona el codificador de contraseñas usando BCrypt.
+     * 
+     * @return Codificador de contraseñas BCrypt
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Proporciona el gestor de autenticación de Spring Security.
+     * 
+     * @param config Configuración de autenticación
+     * @return Gestor de autenticación configurado
+     * @throws Exception Si hay error en la configuración
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
