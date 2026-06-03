@@ -1,14 +1,23 @@
-// Importaciones de Angular y Router
+/**
+ * Componente de barra de navegación principal.
+ * 
+ * Muestra los enlaces de navegación a las diferentes secciones de la aplicación:
+ * - Proyectos
+ * - Tecnologías
+ * - Documentación
+ * 
+ * Utiliza RouterLink para la navegación y RouterLinkActive para resaltar
+ * la ruta activa visualmente.
+ */
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
-// Componente de barra de navegación
 @Component({
-  selector: 'app-navbar',                     // Selector HTML para usar el componente
-  standalone: true,                            // Componente standalone (independiente)
-  imports: [RouterLink, RouterLinkActive],     // Directivas para navegación y estado activo
-  templateUrl: './navbar.html',                // Archivo de plantilla HTML
-  styleUrl: './navbar.css',                    // Archivo de estilos CSS
+  selector: 'app-navbar',
+  standalone: true,
+  imports: [RouterLink, RouterLinkActive],
+  templateUrl: './navbar.html',
+  styleUrl: './navbar.css',
 })
 export class Navbar {
   // Componente sin lógica adicional, solo muestra la navegación

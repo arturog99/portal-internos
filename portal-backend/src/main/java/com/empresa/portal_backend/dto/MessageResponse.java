@@ -1,4 +1,10 @@
 package com.empresa.portal_backend.dto;
 
-public record MessageResponse(String message) {
+/**
+ * Respuesta genérica con un mensaje de texto.
+ */
+public record MessageResponse(
+        /** Mensaje de respuesta */
+        String message
+) {
 }

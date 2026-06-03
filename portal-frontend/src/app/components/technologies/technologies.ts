@@ -1,25 +1,36 @@
-// Importaciones de Angular, servicios y modelos
+/**
+ * Componente de página de tecnologías.
+ * 
+ * Muestra un listado de todas las tecnologías utilizadas en los proyectos,
+ * ordenadas por frecuencia de uso (de más a menos usadas).
+ * 
+ * Calcula dinámicamente las tecnologías a partir de los tags de los proyectos
+ * y muestra cuántos proyectos usan cada tecnología.
+ */
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProjectService } from '../../services/project.service';
 import { Project } from '../../models/project.model';
 
-// Componente de página de tecnologías
 @Component({
-  selector: 'app-technologies',          // Selector HTML para usar el componente
-  standalone: true,                      // Componente standalone (independiente)
-  imports: [CommonModule],              // CommonModule para directivas como @for
-  templateUrl: './technologies.html',   // Archivo de plantilla HTML
-  styleUrl: './technologies.css',       // Archivo de estilos CSS
+  selector: 'app-technologies',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './technologies.html',
+  styleUrl: './technologies.css',
 })
 export class Technologies implements OnInit {
-  // Inyección del servicio de proyectos
+  /** Servicio para obtener los datos de proyectos */
   private projectService = inject(ProjectService);
 
-  // Signal para almacenar la lista de proyectos
+  /** Signal con la lista de proyectos cargados */
   projects = signal<Project[]>([]);
 
-  // Computed: obtiene todas las tecnologías únicas con conteo de proyectos que las usan
+  /**
+   * Computed que calcula las tecnologías únicas con su conteo de uso.
+   * 
+   * @returns Array de objetos {name, count} ordenado por conteo descendente
+   */
   technologies = computed(() => {
     const projects = this.projects();
     const techMap = new Map<string, number>();
@@ -37,11 +48,11 @@ export class Technologies implements OnInit {
       .sort((a, b) => b.count - a.count);
   });
 
-  // Al inicializar el componente, cargar los proyectos desde el servicio
+  /** Carga los proyectos al inicializar el componente */
   ngOnInit() {
     this.projectService.getProjects().subscribe({
       next: (datos) => {
-        this.projects.set(datos);  // Actualizar el signal con los datos recibidos
+        this.projects.set(datos);
       },
       error: (err) => {
         console.error('Error cargando proyectos:', err);

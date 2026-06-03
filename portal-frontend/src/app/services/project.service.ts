@@ -1,19 +1,29 @@
-// Importaciones de Angular y RxJS
+/**
+ * Servicio para obtener datos de proyectos.
+ * 
+ * Proporciona métodos para cargar la lista de proyectos desde el backend
+ * o desde un archivo JSON local (actualmente usa /projects.json).
+ * 
+ * Este servicio está registrado como singleton a nivel de aplicación.
+ */
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Project } from '../models/project.model';
 
-// Servicio para obtener datos de proyectos
 @Injectable({
-  providedIn: 'root'  // El servicio está disponible en toda la aplicación (singleton)
+  providedIn: 'root'
 })
 export class ProjectService {
-  // Inyección de HttpClient para hacer peticiones HTTP
+  /** Cliente HTTP para realizar peticiones al backend */
   private http = inject(HttpClient);
 
-  // Método para obtener la lista de proyectos desde el archivo JSON
+  /**
+   * Obtiene la lista de todos los proyectos.
+   * 
+   * @returns Observable con el array de proyectos
+   */
   getProjects(): Observable<Project[]> {
-    return this.http.get<Project[]>('/projects.json');  // Petición GET al archivo projects.json
+    return this.http.get<Project[]>('/projects.json');
   }
 }

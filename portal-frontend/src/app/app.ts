@@ -1,16 +1,23 @@
-// Importaciones de Angular
+/**
+ * Componente principal (root) de la aplicación.
+ * 
+ * Este es el componente raíz que contiene:
+ * - La barra de navegación (Navbar)
+ * - El RouterOutlet donde se renderizan las rutas hijas
+ * 
+ * Es el punto de entrada de la aplicación Angular.
+ */
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Navbar } from './components/navbar/navbar';
 
-// Componente principal de la aplicación
 @Component({
-  selector: 'app-root',           // Selector HTML para usar el componente
-  imports: [RouterOutlet, Navbar], // Módulos importados: RouterOutlet para navegación, Navbar para la barra
-  templateUrl: './app.html',        // Archivo de plantilla HTML
-  styleUrl: './app.css'            // Archivo de estilos CSS
+  selector: 'app-root',
+  imports: [RouterOutlet, Navbar],
+  templateUrl: './app.html',
+  styleUrl: './app.css'
 })
 export class App {
-  // Signal que contiene el título de la aplicación (reactivo)
+  /** Título de la aplicación (usado en el header y meta tags) */
   protected readonly title = signal('portal-internos');
 }
