@@ -1,5 +1,6 @@
 package com.empresa.portal_backend.service;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,8 +35,10 @@ public class DocumentStorageService {
 
     /**
      * Inicializa el directorio de almacenamiento al arrancar el servicio.
+     * Se ejecuta después de la inyección de dependencias (@Value).
      */
-    public DocumentStorageService() {
+    @PostConstruct
+    public void init() {
         this.baseLocation = Paths.get(documentsPath).toAbsolutePath().normalize();
     }
 
@@ -44,7 +47,7 @@ public class DocumentStorageService {
      *
      * @throws IOException Si no se puede crear el directorio
      */
-    public void init() throws IOException {
+    public void createDirectories() throws IOException {
         Files.createDirectories(this.baseLocation);
     }
 
@@ -59,6 +62,9 @@ public class DocumentStorageService {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("No se puede guardar un archivo vacío");
         }
+
+        // Asegura que el directorio existe antes de guardar
+        Files.createDirectories(this.baseLocation);
 
         String originalFilename = file.getOriginalFilename();
         String extension = originalFilename != null && originalFilename.contains(".")
