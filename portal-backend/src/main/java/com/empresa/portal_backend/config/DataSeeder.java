@@ -62,6 +62,28 @@ public class DataSeeder implements CommandLineRunner {
     public void run(String... args) {
         seedUsers();
         seedProjects();
+        ensureCertificateMapping();
+    }
+
+    /**
+     * Asocia (de forma idempotente) el certificado digital de demostración al
+     * usuario admin.
+     *
+     * El certificado de cliente de prueba se emite con CN=admin
+     * (ver scripts/generate-demo-certs.ps1), por lo que el identificador
+     * extraído del certificado es "admin". Aquí garantizamos que el usuario
+     * admin tenga ese mismo valor en certificateId para que el login por
+     * certificado X.509 lo resuelva. Para un certificado FNMT real, este valor
+     * sería el DNI extraído del SERIALNUMBER del subject.
+     */
+    private void ensureCertificateMapping() {
+        userRepository.findByUsername("admin").ifPresent(admin -> {
+            if (admin.getCertificateId() == null) {
+                admin.setCertificateId("admin");
+                userRepository.save(admin);
+                log.info("Seed: certificateId 'admin' asignado al usuario admin (login por certificado)");
+            }
+        });
     }
 
     /**

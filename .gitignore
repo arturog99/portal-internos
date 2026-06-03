@@ -20,5 +20,8 @@ portal-backend/build/
 portal-backend/src/main/resources/application-local.yml
 portal-backend/.env
 
+# Demo certificates (X.509 / mTLS) - regenerar con scripts/generate-demo-certs.ps1
+portal-backend/src/main/resources/certs/
+
 # Logs
 *.log
