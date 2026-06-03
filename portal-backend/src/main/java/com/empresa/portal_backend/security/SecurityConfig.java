@@ -106,6 +106,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/projects/**").hasAnyRole("ADMIN", "TECNICO")
                         // Gestión de usuarios: solo ADMIN
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
+                        // Documentos de proyectos: ADMIN y TECNICO (subir, listar, descargar, borrar)
+                        .requestMatchers("/api/projects/*/documents/**").hasAnyRole("ADMIN", "TECNICO")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

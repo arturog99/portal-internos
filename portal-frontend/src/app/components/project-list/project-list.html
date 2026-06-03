@@ -235,6 +235,73 @@
         </div>
       }
 
+      <!-- Documentos de avance (solo ADMIN y TECNICO) -->
+      @if (auth.canEdit()) {
+        <div class="mt-6 pt-5 border-t border-gray-100">
+          <h3 class="filter-group-title mb-3">Documentos de avance</h3>
+
+          @if (documentError()) {
+            <div class="mb-3 px-3 py-2 rounded text-sm bg-red-50 text-red-700 border border-red-200">
+              {{ documentError() }}
+            </div>
+          }
+
+          <!-- Subir documento -->
+          <div class="mb-4">
+            <input
+              type="file"
+              (change)="onFileSelected($event)"
+              [disabled]="uploading()"
+              class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-white file:text-gray-700 hover:file:bg-gray-50"
+            />
+            @if (uploading()) {
+              <span class="text-xs mt-1 block" style="color: #4A7C59;">Subiendo archivo...</span>
+            }
+          </div>
+
+          <!-- Lista de documentos -->
+          @if (documents().length > 0) {
+            <div class="space-y-2">
+              @for (doc of documents(); track doc.id) {
+                <div class="flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-gray-50">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium truncate" style="color: #1C211F;">{{ doc.filename }}</p>
+                    <p class="text-xs" style="color: #1C211F; opacity: 0.6;">
+                      {{ formatFileSize(doc.size) }} · {{ formatDate(doc.uploadedAt) }} · por {{ doc.uploadedBy }}
+                    </p>
+                  </div>
+                  <div class="flex gap-2 ml-3">
+                    <button
+                      type="button"
+                      (click)="downloadDocument(doc)"
+                      class="p-2 rounded-lg text-sm transition hover:bg-white"
+                      style="color: #4A7C59;"
+                      title="Descargar"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      (click)="deleteDocument(doc)"
+                      class="p-2 rounded-lg text-sm transition hover:bg-white text-red-600"
+                      title="Eliminar"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          } @empty {
+            <p class="text-sm" style="color: #1C211F; opacity: 0.5;">No hay documentos de avance.</p>
+          }
+        </div>
+      }
+
       <!-- Acciones de edición/borrado según rol -->
       @if (auth.canEdit()) {
         <div class="flex gap-2 mt-6 pt-5 border-t border-gray-100">

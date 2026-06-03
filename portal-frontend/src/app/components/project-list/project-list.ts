@@ -1,10 +1,11 @@
 // Importaciones de Angular, servicios y modelos
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common'; 
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProjectService } from '../../services/project.service';
 import { Project } from '../../models/project.model';
 import { ProjectRequest } from '../../models/project.request';
+import { ProjectDocument } from '../../models/document.model';
 import { AuthService } from '../../services/auth.service';
 
 // Componente de lista de proyectos con filtrado
@@ -42,6 +43,11 @@ export class ProjectListComponent implements OnInit {
   formStatus = signal<Project['status']>('Producción'); // Estado del formulario
   saving = signal(false);                    // Indica si hay una operación en curso
   errorMessage = signal<string | null>(null); // Mensaje de error a mostrar
+
+  // Estados para documentos de avance
+  documents = signal<ProjectDocument[]>([]);   // Lista de documentos del proyecto seleccionado
+  uploading = signal(false);                  // Indica si se está subiendo un archivo
+  documentError = signal<string | null>(null); // Error específico de documentos
 
   // Estados posibles de un proyecto (para el selector del modal)
   statuses: Project['status'][] = ['Producción', 'En Desarrollo', 'Mantenimiento'];
@@ -130,6 +136,11 @@ export class ProjectListComponent implements OnInit {
   // Abre el modal de detalles con el proyecto seleccionado
   openProject(proyecto: Project) {
     this.selectedProject.set(proyecto);
+    this.documents.set([]);
+    this.documentError.set(null);
+    if (this.auth.canEdit()) {
+      this.loadDocuments(proyecto.id);
+    }
   }
 
   // Cierra el modal de detalles
@@ -230,6 +241,95 @@ export class ProjectListComponent implements OnInit {
         }
       },
       error: () => this.errorMessage.set('No se pudo eliminar el proyecto.')
+    });
+  }
+
+  // Carga los documentos de un proyecto desde el backend
+  loadDocuments(projectId: number) {
+    this.projectService.getDocuments(projectId).subscribe({
+      next: (docs) => this.documents.set(docs),
+      error: () => this.documentError.set('No se pudieron cargar los documentos.')
+    });
+  }
+
+  // Sube un archivo seleccionado al proyecto actual
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    const selected = this.selectedProject();
+    if (!selected) return;
+
+    this.uploading.set(true);
+    this.documentError.set(null);
+
+    this.projectService.uploadDocument(selected.id, file).subscribe({
+      next: (doc) => {
+        this.uploading.set(false);
+        this.documents.update(docs => [doc, ...docs]);
+        input.value = ''; // Limpia el input
+      },
+      error: () => {
+        this.uploading.set(false);
+        this.documentError.set('No se pudo subir el archivo.');
+      }
+    });
+  }
+
+  // Descarga un documento por su ID
+  downloadDocument(doc: ProjectDocument) {
+    const selected = this.selectedProject();
+    if (!selected) return;
+
+    this.projectService.downloadDocument(selected.id, doc.id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = doc.filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => this.documentError.set('No se pudo descargar el archivo.')
+    });
+  }
+
+  // Borra un documento por su ID
+  deleteDocument(doc: ProjectDocument) {
+    if (!confirm(`¿Eliminar el documento "${doc.filename}"?`)) return;
+
+    const selected = this.selectedProject();
+    if (!selected) return;
+
+    this.projectService.deleteDocument(selected.id, doc.id).subscribe({
+      next: () => {
+        this.documents.update(docs => docs.filter(d => d.id !== doc.id));
+      },
+      error: () => this.documentError.set('No se pudo eliminar el documento.')
+    });
+  }
+
+  // Formatea el tamaño del archivo para mostrarlo legiblemente
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  // Formatea la fecha de subida
+  formatDate(isoString: string): string {
+    const date = new Date(isoString);
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 
