@@ -34,7 +34,8 @@
   <div class="bg-white rounded-xl p-6 border border-gray-200">
     <h2 class="text-lg font-bold mb-2" style="color: #1C211F;">Autenticación de dos factores (2FA)</h2>
     <p class="text-sm mb-4" style="color: #1C211F; opacity: 0.7;">
-      Protege tu cuenta con un código temporal de Google Authenticator.
+      Protege tu cuenta con un código temporal de un solo uso. Compatible con
+      Google Authenticator (también Authy o Microsoft Authenticator).
     </p>
 
     @if (!setup()) {
@@ -52,7 +53,7 @@
     @if (setup(); as s) {
       <div class="flex flex-col items-center gap-4">
         <p class="text-sm text-center" style="color: #1C211F; opacity: 0.7;">
-          1. Escanea este código con tu app de autenticación.
+          1. Escanea este código con Google Authenticator.
         </p>
         <img [src]="s.qrCodeDataUri" alt="Código QR 2FA" class="w-48 h-48 border border-gray-200 rounded-lg">
         <p class="text-xs text-center break-all" style="color: #1C211F; opacity: 0.5;">
