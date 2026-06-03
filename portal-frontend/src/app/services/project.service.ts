@@ -1,8 +1,9 @@
 /**
  * Servicio de proyectos conectado al backend (Spring Boot).
  *
- * Proporciona operaciones CRUD contra /api/projects. El control de acceso
- * por rol lo aplica el backend; el frontend solo muestra/oculta acciones.
+ * Proporciona operaciones CRUD contra /api/projects y gestión de documentos
+ * de avance. El control de acceso por rol lo aplica el backend; el frontend
+ * solo muestra/oculta acciones.
  *
  * Este servicio está registrado como singleton a nivel de aplicación.
  */
@@ -11,6 +12,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Project } from '../models/project.model';
 import { ProjectRequest } from '../models/project.request';
+import { ProjectDocument } from '../models/document.model';
 import { API_BASE_URL } from '../core/api.config';
 
 @Injectable({
@@ -48,5 +50,29 @@ export class ProjectService {
   /** Elimina un proyecto (requiere rol ADMIN en el backend). */
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
+  }
+
+  /** Sube un documento de avance a un proyecto (ADMIN o TECNICO). */
+  uploadDocument(projectId: number, file: File): Observable<ProjectDocument> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ProjectDocument>(`${this.base}/${projectId}/documents`, formData);
+  }
+
+  /** Obtiene los documentos de un proyecto (ADMIN o TECNICO). */
+  getDocuments(projectId: number): Observable<ProjectDocument[]> {
+    return this.http.get<ProjectDocument[]>(`${this.base}/${projectId}/documents`);
+  }
+
+  /** Descarga un documento por su ID (ADMIN o TECNICO). */
+  downloadDocument(projectId: number, documentId: number): Observable<Blob> {
+    return this.http.get(`${this.base}/${projectId}/documents/${documentId}/download`, {
+      responseType: 'blob'
+    });
+  }
+
+  /** Borra un documento por su ID (ADMIN o TECNICO). */
+  deleteDocument(projectId: number, documentId: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${projectId}/documents/${documentId}`);
   }
 }
